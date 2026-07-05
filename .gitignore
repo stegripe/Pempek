@@ -53,10 +53,10 @@ manifest.mf
 # other stuff
 /run
 
-/purpur-server/build.gradle.kts
-/purpur-server/src/minecraft
+/pempek-server/build.gradle.kts
+/pempek-server/src/minecraft
 /paper-server
-/purpur-api/build.gradle.kts
+/pempek-api/build.gradle.kts
 /paper-api
 *.jar
 test-plugin.settings.gradle.kts

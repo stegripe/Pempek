@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/level/block/KelpBlock.java
++++ b/net/minecraft/world/level/block/KelpBlock.java
+@@ -72,4 +_,11 @@
+     protected FluidState getFluidState(final BlockState state) {
+         return Fluids.WATER.getSource(false);
+     }
++
++    // Pempek start - kelp vines configurable max growth age
++    @Override
++    public int getMaxGrowthAge() {
++        return org.stegripe.pempek.PempekConfig.kelpMaxGrowthAge;
++    }
++    // Pempek end - kelp vines configurable max growth age
+ }

@@ -12,12 +12,12 @@ index 652ff54e7c50412503725d628bfe72ed03059790..a7c0936a1ee80618f9a504087c88814f
       */
      Key BRAND_PAPER_ID = Key.key("papermc", "paper");
  
-+    // Purpur start
++    // Pempek start
 +    /**
 +     * The brand id for Pufferfish.
 +     */
 +    Key BRAND_PUFFERFISH_ID = Key.key("pufferfish", "pufferfish");
-+    // Purpur end
++    // Pempek end
 +
      /**
       * Gets the {@code ServerBuildInfo}.
@@ -30,10 +30,10 @@ index f9e4b16a21d6cc6c9cbbe06d20c8af25e72e3ddb..4028b230e7fe1c78520f227a377a2a61
          "org/bukkit/plugin/java/PluginClassLoader",
          // Generic functional interface
          "org/bukkit/util/Consumer",
-+        // Purpur start
++        // Pempek start
 +        "gg/pufferfish/pufferfish/sentry/SentryContext",
 +        "gg/pufferfish/pufferfish/sentry/SentryContext$State",
-+        // Purpur end
++        // Pempek end
          // Paper start
          "io/papermc/paper/util/TransformingRandomAccessList",
          "io/papermc/paper/util/TransformingRandomAccessList$TransformedListIterator",

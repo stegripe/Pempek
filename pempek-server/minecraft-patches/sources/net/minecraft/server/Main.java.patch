@@ -1,0 +1,16 @@
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -107,6 +_,13 @@
+                 JvmProfiler.INSTANCE.start(Environment.SERVER);
+             }
+ 
++            // Pempek start - Add toggle for enchant level clamping - load config files early
++            org.bukkit.configuration.file.YamlConfiguration pempekConfiguration = io.papermc.paper.configuration.PaperConfigurations.loadLegacyConfigFile((File) options.valueOf("pempek-settings"));
++            org.stegripe.pempek.PempekConfig.clampEnchantLevels = pempekConfiguration.getBoolean("settings.enchantment.clamp-levels", true);
++            org.stegripe.pempek.PempekConfig.registerMinecraftDebugCommands = pempekConfiguration.getBoolean("settings.register-minecraft-debug-commands"); // Pempek - register minecraft debug commands
++            org.stegripe.pempek.PempekConfig.registerMinecraftDisabledCommands = pempekConfiguration.getBoolean("settings.register-minecraft-disabled-commands"); // Pempek - register disabled minecraft commands
++            // Pempek end - Add toggle for enchant level clamping - load config files early
++
+             io.papermc.paper.plugin.PluginInitializerManager.load(options); // Paper
+             Bootstrap.bootStrap();
+             Bootstrap.validate();

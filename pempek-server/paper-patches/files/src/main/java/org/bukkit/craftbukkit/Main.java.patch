@@ -1,0 +1,17 @@
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -139,6 +_,14 @@
+                         .defaultsTo(new File[] {})
+                         .describedAs("Plugin directory");
+ 
++                // Pempek start - Pempek config files
++                this.acceptsAll(asList("pempek", "pempek-settings"), "File for pempek settings")
++                    .withRequiredArg()
++                    .ofType(File.class)
++                    .defaultsTo(new File("pempek.yml"))
++                    .describedAs("Yml file");
++                // Pempek end - Pempek config files
++
+                 this.accepts("server-name", "Name of the server")
+                         .withRequiredArg()
+                         .ofType(String.class)

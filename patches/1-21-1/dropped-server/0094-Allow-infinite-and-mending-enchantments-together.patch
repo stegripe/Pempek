@@ -13,14 +13,14 @@ index 81cc05c929d612898609965d82454b89cd18f9f5..fa73c3d4b58ad8379963a9866d8f09e1
      @Override
      public boolean checkCompatibility(Enchantment other) {
 -        return !(other instanceof MendingEnchantment) && super.checkCompatibility(other);
-+        return !(other instanceof MendingEnchantment) && super.checkCompatibility(other) || other instanceof MendingEnchantment && org.purpurmc.purpur.PurpurConfig.allowInfinityMending; // Purpur
++        return !(other instanceof MendingEnchantment) && super.checkCompatibility(other) || other instanceof MendingEnchantment && org.stegripe.pempek.PempekConfig.allowInfinityMending; // Pempek
      }
  }
-diff --git a/src/main/java/org/purpurmc/purpur/PurpurConfig.java b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
+diff --git a/src/main/java/org/stegripe/pempek/PempekConfig.java b/src/main/java/org/stegripe/pempek/PempekConfig.java
 index 2f68cf2fc064a38ca059504a39d563d95d01643e..6d621a93aaf94927fa6c73e649dcdb8bbbaadd2a 100644
---- a/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-+++ b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-@@ -246,6 +246,16 @@ public class PurpurConfig {
+--- a/src/main/java/org/stegripe/pempek/PempekConfig.java
++++ b/src/main/java/org/stegripe/pempek/PempekConfig.java
+@@ -246,6 +246,16 @@ public class PempekConfig {
          cryingObsidianValidForPortalFrame = getBoolean("settings.blocks.crying_obsidian.valid-for-portal-frame", cryingObsidianValidForPortalFrame);
      }
  

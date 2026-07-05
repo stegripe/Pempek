@@ -13,7 +13,7 @@ index aa351df679f300018367244c7ccb3e5a59e9276f..39c2a9f732b8e2452fd2dca07193a173
      }
      // Paper end - body yaw API
 +
-+    // Purpur start
++    // Pempek start
 +    @Override
 +    public float getSafeFallDistance() {
 +        return (float) getHandle().getAttributeValue(Attributes.SAFE_FALL_DISTANCE);
@@ -23,5 +23,5 @@ index aa351df679f300018367244c7ccb3e5a59e9276f..39c2a9f732b8e2452fd2dca07193a173
 +    public void setSafeFallDistance(float safeFallDistance) {
 +        getHandle().getAttribute(Attributes.SAFE_FALL_DISTANCE).setBaseValue(safeFallDistance);
 +    }
-+    // Purpur end
++    // Pempek end
  }

@@ -1,0 +1,56 @@
+--- a/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
++++ b/net/minecraft/world/entity/boss/enderdragon/EndCrystal.java
+@@ -40,6 +_,24 @@
+         this.setPos(x, y, z);
+     }
+ 
++    // Pempek start - End crystal explosion options
++    public boolean shouldExplode() {
++        return showsBottom() ? level().pempekConfig.basedEndCrystalExplode : level().pempekConfig.baselessEndCrystalExplode;
++    }
++
++    public float getExplosionPower() {
++        return (float) (showsBottom() ? level().pempekConfig.basedEndCrystalExplosionPower : level().pempekConfig.baselessEndCrystalExplosionPower);
++    }
++
++    public boolean hasExplosionFire() {
++        return showsBottom() ? level().pempekConfig.basedEndCrystalExplosionFire : level().pempekConfig.baselessEndCrystalExplosionFire;
++    }
++
++    public Level.ExplosionInteraction getExplosionEffect() {
++        return showsBottom() ? level().pempekConfig.basedEndCrystalExplosionEffect : level().pempekConfig.baselessEndCrystalExplosionEffect;
++    }
++    // Pempek end - End crystal explosion options
++
+     @Override
+     protected Entity.MovementEmission getMovementEmission() {
+         return Entity.MovementEmission.NONE;
+@@ -76,6 +_,8 @@
+             }
+         }
+         // Paper end - Fix invulnerable end crystals
++        if (this.level().pempekConfig.endCrystalCramming > 0 && this.level().getEntitiesOfClass(EndCrystal.class, getBoundingBox()).size() > this.level().pempekConfig.endCrystalCramming) this.hurt(this.damageSources().cramming(), 6.0F); // Pempek - End Crystal Cramming
++
+     }
+ 
+     @Override
+@@ -119,15 +_,17 @@
+             }
+             // CraftBukkit end
+             if (!source.is(DamageTypeTags.IS_EXPLOSION)) {
++                if (shouldExplode()) {// Pempek - End crystal explosion options
+                 DamageSource damageSource = source.getEntity() != null ? this.damageSources().explosion(this, source.getEntity()) : null;
+                 // CraftBukkit start
+-                org.bukkit.event.entity.ExplosionPrimeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callExplosionPrimeEvent(this, 6.0F, false);
++                org.bukkit.event.entity.ExplosionPrimeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callExplosionPrimeEvent(this, getExplosionPower(), hasExplosionFire()); // Pempek - End crystal explosion options
+                 if (event.isCancelled()) {
+                     return false;
+                 }
+ 
+                 this.remove(Entity.RemovalReason.KILLED, org.bukkit.event.entity.EntityRemoveEvent.Cause.EXPLODE); // Paper - add Bukkit remove cause
+-                level.explode(this, damageSource, null, this.getX(), this.getY(), this.getZ(), event.getRadius(), event.getFire(), Level.ExplosionInteraction.BLOCK);
++                level.explode(this, damageSource, null, this.getX(), this.getY(), this.getZ(), event.getRadius(), event.getFire(), getExplosionEffect()); // Pempek - End crystal explosion options
++                } else this.unsetRemoved(); // Pempek - End crystal explosion options
+             } else {
+                 this.remove(Entity.RemovalReason.KILLED, org.bukkit.event.entity.EntityRemoveEvent.Cause.DEATH); // Paper - add Bukkit remove cause
+                 // CraftBukkit end

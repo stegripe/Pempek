@@ -12,7 +12,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
      private static final String AMBIENT = "ambient";
      private static final String PARTICLES = "has-particles";
      private static final String ICON = "has-icon";
-+    private static final String KEY = "namespacedKey"; // Purpur
++    private static final String KEY = "namespacedKey"; // Pempek
      private final int amplifier;
      private final int duration;
      private final PotionEffectType type;
@@ -20,7 +20,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
      private final boolean particles;
      private final boolean icon;
      private final PotionEffect hiddenEffect; // Paper
-+    @Nullable private final NamespacedKey key; // Purpur
++    @Nullable private final NamespacedKey key; // Pempek
  
      /**
       * Creates a potion effect.
@@ -34,7 +34,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
       */
      @org.jetbrains.annotations.ApiStatus.Internal // Paper
 -    public PotionEffect(@NotNull PotionEffectType type, int duration, int amplifier, boolean ambient, boolean particles, boolean icon, @Nullable PotionEffect hiddenEffect) { // Paper
-+    public PotionEffect(@NotNull PotionEffectType type, int duration, int amplifier, boolean ambient, boolean particles, boolean icon, @Nullable PotionEffect hiddenEffect, @Nullable NamespacedKey key) { // Paper // Purpur
++    public PotionEffect(@NotNull PotionEffectType type, int duration, int amplifier, boolean ambient, boolean particles, boolean icon, @Nullable PotionEffect hiddenEffect, @Nullable NamespacedKey key) { // Paper // Pempek
          Preconditions.checkArgument(type != null, "effect type cannot be null");
          this.type = type;
          this.duration = duration;
@@ -42,7 +42,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
          this.ambient = ambient;
          this.particles = particles;
          this.icon = icon;
-+        this.key = key; // Purpur
++        this.key = key; // Pempek
          // Paper start
          this.hiddenEffect = hiddenEffect;
      }
@@ -51,11 +51,11 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
       */
      public PotionEffect(@NotNull PotionEffectType type, int duration, int amplifier, boolean ambient, boolean particles, boolean icon) {
 -        this(type, duration, amplifier, ambient, particles, icon, null);
-+        this(type, duration, amplifier, ambient, particles, icon, null, null); // Purpur
++        this(type, duration, amplifier, ambient, particles, icon, null, null); // Pempek
          // Paper end
      }
  
-+    // Purpur start
++    // Pempek start
 +    /**
 +     * Creates a potion effect.
 +     * @param type effect type
@@ -70,7 +70,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
 +    public PotionEffect(@NotNull PotionEffectType type, int duration, int amplifier, boolean ambient, boolean particles, boolean icon, @Nullable NamespacedKey key) {
 +        this(type, duration, amplifier, ambient, particles, icon, null, key);
 +    }
-+    // Purpur end
++    // Pempek end
 +
      /**
       * Creates a potion effect with no defined color.
@@ -80,39 +80,39 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
       */
      public PotionEffect(@NotNull Map<String, Object> map) {
 -        this(getEffectType(map), getInt(map, DURATION), getInt(map, AMPLIFIER), getBool(map, AMBIENT, false), getBool(map, PARTICLES, true), getBool(map, ICON, getBool(map, PARTICLES, true)), (PotionEffect) map.get(HIDDEN_EFFECT)); // Paper
-+        this(getEffectType(map), getInt(map, DURATION), getInt(map, AMPLIFIER), getBool(map, AMBIENT, false), getBool(map, PARTICLES, true), getBool(map, ICON, getBool(map, PARTICLES, true)), (PotionEffect) map.get(HIDDEN_EFFECT), getKey(map)); // Paper // Purpur - getKey
++        this(getEffectType(map), getInt(map, DURATION), getInt(map, AMPLIFIER), getBool(map, AMBIENT, false), getBool(map, PARTICLES, true), getBool(map, ICON, getBool(map, PARTICLES, true)), (PotionEffect) map.get(HIDDEN_EFFECT), getKey(map)); // Paper // Pempek - getKey
      }
  
      // Paper start
      @NotNull
      public PotionEffect withType(@NotNull PotionEffectType type) {
 -        return new PotionEffect(type, duration, amplifier, ambient, particles, icon);
-+        return new PotionEffect(type, duration, amplifier, ambient, particles, icon, key); // Purpur - add key
++        return new PotionEffect(type, duration, amplifier, ambient, particles, icon, key); // Pempek - add key
      }
      @NotNull
      public PotionEffect withDuration(int duration) {
 -        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon);
-+        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Purpur - add key
++        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Pempek - add key
      }
      @NotNull
      public PotionEffect withAmplifier(int amplifier) {
 -        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon);
-+        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Purpur - add key
++        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Pempek - add key
      }
      @NotNull
      public PotionEffect withAmbient(boolean ambient) {
 -        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon);
-+        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Purpur - add key
++        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Pempek - add key
      }
      @NotNull
      public PotionEffect withParticles(boolean particles) {
 -        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon);
-+        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Purpur - add key
++        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Pempek - add key
      }
      @NotNull
      public PotionEffect withIcon(boolean icon) {
 -        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon);
-+        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Purpur - add key
++        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key); // Pempek - add key
      }
  
      /**
@@ -120,12 +120,12 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
      }
      // Paper end
  
-+    // Purpur start
++    // Pempek start
 +    @NotNull
 +    public PotionEffect withKey(@Nullable NamespacedKey key) {
 +        return new PotionEffect(this.type, duration, amplifier, ambient, particles, icon, key);
 +    }
-+    // Purpur end
++    // Pempek end
 +
      @NotNull
      private static PotionEffectType getEffectType(@NotNull Map<?, ?> map) {
@@ -134,7 +134,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
          return def;
      }
  
-+    // Purpur start
++    // Pempek start
 +    @Nullable
 +    private static NamespacedKey getKey(@NotNull Map<?, ?> map) {
 +        Object key = map.get(KEY);
@@ -143,7 +143,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
 +        }
 +        return null;
 +    }
-+    // Purpur end
++    // Pempek end
 +
      @Override
      @NotNull
@@ -152,11 +152,11 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
          if (this.hiddenEffect != null) {
              builder.put(HIDDEN_EFFECT, this.hiddenEffect);
          }
-+        // Purpur start
++        // Pempek start
 +        if (key != null) {
 +            builder.put(KEY, key.toString());
 +        }
-+        // Purpur end
++        // Pempek end
          return builder.build();
          // Paper end
      }
@@ -165,7 +165,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
          }
          PotionEffect that = (PotionEffect) obj;
 -        return this.type.equals(that.type) && this.ambient == that.ambient && this.amplifier == that.amplifier && this.duration == that.duration && this.particles == that.particles && this.icon == that.icon && java.util.Objects.equals(this.hiddenEffect, that.hiddenEffect); // Paper
-+        return this.type.equals(that.type) && this.ambient == that.ambient && this.amplifier == that.amplifier && this.duration == that.duration && this.particles == that.particles && this.icon == that.icon && java.util.Objects.equals(this.hiddenEffect, that.hiddenEffect) && this.key == that.key; // Paper // Purpur - add key
++        return this.type.equals(that.type) && this.ambient == that.ambient && this.amplifier == that.amplifier && this.duration == that.duration && this.particles == that.particles && this.icon == that.icon && java.util.Objects.equals(this.hiddenEffect, that.hiddenEffect) && this.key == that.key; // Paper // Pempek - add key
      }
  
      /**
@@ -174,7 +174,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
      }
  
 +
-+    // Purpur start
++    // Pempek start
 +    /**
 +     * @return if the key isn't the default namespacedKey
 +     */
@@ -189,7 +189,7 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
 +    public NamespacedKey getKey() {
 +        return key;
 +    }
-+    // Purpur end
++    // Pempek end
 +
      @Override
      public int hashCode() {
@@ -199,6 +199,6 @@ index c8ab330ef171795d08fa201cf8320703c7f1c66b..93e2ea220dc03c122f82af65d5e9fda5
      @Override
      public String toString() {
 -        return "PotionEffect{" + "amplifier=" + amplifier + ", duration=" + duration + ", type=" + type + ", ambient=" + ambient + ", particles=" + particles + ", icon=" + icon + ", hiddenEffect=" + hiddenEffect + '}'; // Paper
-+        return "PotionEffect{" + "amplifier=" + amplifier + ", duration=" + duration + ", type=" + type + ", ambient=" + ambient + ", particles=" + particles + ", icon=" + icon + ", hiddenEffect=" + hiddenEffect + ", key=" + key + '}'; // Paper // Purpur - add key
++        return "PotionEffect{" + "amplifier=" + amplifier + ", duration=" + duration + ", type=" + type + ", ambient=" + ambient + ", particles=" + particles + ", icon=" + icon + ", hiddenEffect=" + hiddenEffect + ", key=" + key + '}'; // Paper // Pempek - add key
      }
  }

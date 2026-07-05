@@ -1,7 +1,7 @@
 version = "1.0.0-SNAPSHOT"
 
 dependencies {
-    compileOnly(project(":purpur-api"))
+    compileOnly(project(":pempek-api"))
 }
 
 tasks.processResources {

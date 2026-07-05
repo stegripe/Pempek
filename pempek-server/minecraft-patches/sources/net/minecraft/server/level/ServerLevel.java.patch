@@ -1,0 +1,164 @@
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -646,8 +_,25 @@
+         // CraftBukkit end
+         this.tickTime = tickTime;
+         this.server = server;
+-        this.customSpawners = customSpawners;
++        this.customSpawners = new ArrayList<>(); // Pempek - Allow toggling special MobSpawners per world
+         this.serverLevelData = levelData;
++        // Pempek start - Allow toggling special MobSpawners per world
++        if (pempekConfig.phantomSpawning) {
++            this.customSpawners.add(new net.minecraft.world.level.levelgen.PhantomSpawner());
++        }
++        if (pempekConfig.patrolSpawning) {
++            this.customSpawners.add(new net.minecraft.world.level.levelgen.PatrolSpawner());
++        }
++        if (pempekConfig.catSpawning) {
++            this.customSpawners.add(new net.minecraft.world.entity.npc.CatSpawner());
++        }
++        if (pempekConfig.villageSiegeSpawning) {
++            this.customSpawners.add(new net.minecraft.world.entity.ai.village.VillageSiege());
++        }
++        if (pempekConfig.villagerTraderSpawning) {
++            this.customSpawners.add(new net.minecraft.world.entity.npc.wanderingtrader.WanderingTraderSpawner(savedDataStorage));
++        }
++        // Pempek end - Allow toggling special MobSpawners per world
+         ChunkGenerator generator = levelStem.generator();
+         // CraftBukkit start
+         // Paper start - per-world time
+@@ -809,7 +_,7 @@
+         }
+ 
+         int percentage = this.getGameRules().get(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
+-        if (this.sleepStatus.areEnoughSleeping(percentage) && this.sleepStatus.areEnoughDeepSleeping(percentage, this.players)) {
++        if (this.pempekConfig.playersSkipNight && this.sleepStatus.areEnoughSleeping(percentage) && this.sleepStatus.areEnoughDeepSleeping(percentage, this.players)) { // Pempek - Config for skipping night
+             Optional<Holder<WorldClock>> defaultClock = this.dimensionType().defaultClock();
+             org.bukkit.event.world.ClockTimeSkipEvent event = null; // Paper - per-world time
+             if (this.getGameRules().get(GameRules.ADVANCE_TIME) && defaultClock.isPresent()) {
+@@ -1050,9 +_,18 @@
+                     && this.random.nextDouble() < difficulty.getEffectiveDifficulty() * this.paperConfig().entities.spawning.skeletonHorseThunderSpawnChance.or(0.01) // Paper - Configurable spawn chances for skeleton horses
+                     && !this.getBlockState(pos.below()).is(BlockTags.LIGHTNING_RODS);
+                 if (isTrap) {
++                    // Pempek start - Special mobs naturally spawn
++                    net.minecraft.world.entity.animal.equine.AbstractHorse skeletonHorse;
++                    if (pempekConfig.zombieHorseSpawnChance > 0D && random.nextDouble() <= pempekConfig.zombieHorseSpawnChance) {
++                        skeletonHorse = EntityTypes.ZOMBIE_HORSE.create(this, EntitySpawnReason.EVENT);
++                    } else {
++                        skeletonHorse = EntityTypes.SKELETON_HORSE.create(this, EntitySpawnReason.EVENT);
++                        if (skeletonHorse != null) ((SkeletonHorse) skeletonHorse).setTrap(true);
++                    }
++                    // Pempek end - Special mobs naturally spawn
+                     SkeletonHorse horse = EntityTypes.SKELETON_HORSE.create(this, EntitySpawnReason.EVENT);
+                     if (horse != null) {
+-                        horse.setTrap(true);
++                        //horse.setTrap(true); // Pempek - Special mobs naturally spawn - moved up
+                         horse.setAge(0);
+                         horse.setPos(pos.getX(), pos.getY(), pos.getZ());
+                         this.addFreshEntity(horse, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.LIGHTNING); // CraftBukkit
+@@ -1087,9 +_,35 @@
+                 if (state.is(Blocks.SNOW)) {
+                     int currentLayers = state.getValue(SnowLayerBlock.LAYERS);
+                     if (currentLayers < Math.min(maxHeight, 8)) {
++                        // Pempek start - Smooth snow accumulation
++                        boolean canSnow = true;
++                        // Ensure snow doesn't get more than N layers taller than its neighbors
++                        // We only need to check blocks that are taller than the minimum step height
++                        if (org.stegripe.pempek.PempekConfig.smoothSnowAccumulationStep > 0 && currentLayers >= org.stegripe.pempek.PempekConfig.smoothSnowAccumulationStep) {
++                            int layersValueMin = currentLayers - org.stegripe.pempek.PempekConfig.smoothSnowAccumulationStep;
++                            for (Direction direction : Direction.Plane.HORIZONTAL) {
++                                BlockPos blockPosNeighbor = topPos.relative(direction);
++                                BlockState blockStateNeighbor = this.getBlockState(blockPosNeighbor);
++                                if (blockStateNeighbor.is(Blocks.SNOW)) {
++                                    // Special check for snow layers, if neighbors are too short, don't accumulate
++                                    int layersValueNeighbor = blockStateNeighbor.getValue(SnowLayerBlock.LAYERS);
++                                    if (layersValueNeighbor <= layersValueMin) {
++                                        canSnow = false;
++                                        break;
++                                    }
++                                } else if (!Block.isFaceFull(blockStateNeighbor.getCollisionShape(this, blockPosNeighbor), direction.getOpposite())) {
++                                    // Since our layer is tall enough already, if we have a non-full neighbor block, don't accumulate
++                                    canSnow = false;
++                                    break;
++                                }
++                            }
++                        }
++                        if (canSnow) {
++                        // Pempek end - Smooth snow accumulation
+                         BlockState newState = state.setValue(SnowLayerBlock.LAYERS, currentLayers + 1);
+                         Block.pushEntitiesUp(state, newState, this, topPos);
+                         org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(this, topPos, newState, Block.UPDATE_ALL, null); // CraftBukkit
++                        } // Pempek - Smooth snow accumulation
+                     }
+                 } else {
+                     org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(this, topPos, Blocks.SNOW.defaultBlockState(), Block.UPDATE_ALL, null); // CraftBukkit
+@@ -1110,7 +_,7 @@
+                 p -> p.is(PoiTypes.LIGHTNING_ROD),
+                 lightningRodPos -> lightningRodPos.getY() == this.getHeight(Heightmap.Types.WORLD_SURFACE, lightningRodPos.getX(), lightningRodPos.getZ()) - 1,
+                 center,
+-                128,
++                org.stegripe.pempek.PempekConfig.lightningRodRange, // Pempek - Make lightning rod range configurable
+                 PoiManager.Occupancy.ANY
+             );
+         return nearbyLightningRod.map(blockPos -> blockPos.above(1));
+@@ -1158,8 +_,26 @@
+                 int percentage = this.getGameRules().get(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
+                 Component message;
+                 if (this.sleepStatus.areEnoughSleeping(percentage)) {
++                    // Pempek start - Customizable sleeping actionbar messages
++                    if (org.stegripe.pempek.PempekConfig.sleepSkippingNight.isBlank()) {
++                        return;
++                    }
++                    if (!org.stegripe.pempek.PempekConfig.sleepSkippingNight.equalsIgnoreCase("default")) {
++                        message = io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(org.stegripe.pempek.PempekConfig.sleepSkippingNight));
++                    } else
++                    // Pempek end - Customizable sleeping actionbar messages
+                     message = Component.translatable("sleep.skipping_night");
+                 } else {
++                    // Pempek start - Customizable sleeping actionbar messages
++                    if (org.stegripe.pempek.PempekConfig.sleepingPlayersPercent.isBlank()) {
++                        return;
++                    }
++                    if (!org.stegripe.pempek.PempekConfig.sleepingPlayersPercent.equalsIgnoreCase("default")) {
++                        message = io.papermc.paper.adventure.PaperAdventure.asVanilla(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(org.stegripe.pempek.PempekConfig.sleepingPlayersPercent,
++                            net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.parsed("count", Integer.toString(this.sleepStatus.amountSleeping())),
++                            net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.parsed("total", Integer.toString(this.sleepStatus.sleepersNeeded(percentage)))));
++                    } else
++                    // Pempek end - Customizable sleeping actionbar messages
+                     message = Component.translatable("sleep.players_sleeping", this.sleepStatus.amountSleeping(), this.sleepStatus.sleepersNeeded(percentage));
+                 }
+ 
+@@ -1325,6 +_,7 @@
+     public void resetWeatherCycle() {
+         WeatherData weatherData = this.getWeatherData();
+         // CraftBukkit start
++        if (this.pempekConfig.rainStopsAfterSleep) // Pempek - Option for if rain and thunder should stop on sleep
+         weatherData.setRaining(false, org.bukkit.event.weather.WeatherChangeEvent.Cause.SLEEP); // Paper - Add cause to Weather/ThunderChangeEvents
+         // If we stop due to everyone sleeping we should reset the weather duration to some other random value.
+         // Not that everyone ever manages to get the whole server to sleep at the same time....
+@@ -1332,6 +_,7 @@
+             weatherData.setRainTime(0);
+         }
+         // CraftBukkit end
++        if (this.pempekConfig.thunderStopsAfterSleep) // Pempek - Option for if rain and thunder should stop on sleep
+         weatherData.setThundering(false, org.bukkit.event.weather.ThunderChangeEvent.Cause.SLEEP); // Paper - Add cause to Weather/ThunderChangeEvents
+         // CraftBukkit start
+         // If we stop due to everyone sleeping we should reset the weather duration to some other random value.
+@@ -2003,7 +_,7 @@
+         Explosion.BlockInteraction blockInteraction = switch (interactionType) {
+             case NONE -> Explosion.BlockInteraction.KEEP;
+             case BLOCK -> this.getDestroyType(GameRules.BLOCK_EXPLOSION_DROP_DECAY);
+-            case MOB -> this.getGameRules().get(GameRules.MOB_GRIEFING)
++            case MOB -> ((source instanceof net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball) ? this.getGameRules().get(GameRules.MOB_GRIEFING, this.pempekConfig.fireballsMobGriefingOverride) : this.getGameRules().get(GameRules.MOB_GRIEFING)) // Pempek - Add mobGriefing override to everything affected
+                 ? this.getDestroyType(GameRules.MOB_EXPLOSION_DROP_DECAY)
+                 : Explosion.BlockInteraction.KEEP;
+             case TNT -> this.getDestroyType(GameRules.TNT_EXPLOSION_DROP_DECAY);
+@@ -2922,7 +_,7 @@
+             // Spigot start
+             if (entity.getBukkitEntity() instanceof org.bukkit.inventory.InventoryHolder && (!(entity instanceof ServerPlayer) || entity.getRemovalReason() != Entity.RemovalReason.KILLED)) { // SPIGOT-6876: closeInventory clears death message
+                 // Paper start - Fix merchant inventory not closing on entity removal
+-                if (entity.getBukkitEntity() instanceof org.bukkit.inventory.Merchant merchant && merchant.getTrader() != null) {
++                if (!entity.level().pempekConfig.playerVoidTrading && entity.getBukkitEntity() instanceof org.bukkit.inventory.Merchant merchant && merchant.getTrader() != null) { // Pempek - Allow void trading
+                     merchant.getTrader().closeInventory(org.bukkit.event.inventory.InventoryCloseEvent.Reason.UNLOADED);
+                 }
+                 // Paper end - Fix merchant inventory not closing on entity removal

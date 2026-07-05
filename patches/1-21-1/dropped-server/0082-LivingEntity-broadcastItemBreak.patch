@@ -13,11 +13,11 @@ index a1e715629313346f670bce92483996122b0f1d7b..386647f6000c71c59ab8d7875219eefd
      }
      // Paper end - body yaw API
 +
-+    // Purpur start
++    // Pempek start
 +    @Override
 +    public void broadcastItemBreak(org.bukkit.inventory.EquipmentSlot slot) {
 +        if (slot == null) return;
 +        getHandle().broadcastBreakEvent(org.bukkit.craftbukkit.CraftEquipmentSlot.getNMS(slot));
 +    }
-+    // Purpur end
++    // Pempek end
  }

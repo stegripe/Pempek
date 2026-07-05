@@ -23,7 +23,7 @@ index 9967ba762567631f2bdb1e4f8fe16a13ea927b46..6c945ae8fe8b1517e312c688f829fab4
 -    private final boolean isMeat;
 -    private final boolean canAlwaysEat;
 -    private final boolean fastFood;
-+    // Purpur start
++    // Pempek start
 +    private int nutrition; public void setNutrition(int nutrition) { this.nutrition = nutrition; }
 +    private float saturationModifier; public void setSaturationModifier(float saturation) { this.saturationModifier = saturation; }
 +    private boolean isMeat; public void setIsMeat(boolean isMeat) { this.isMeat = isMeat; }
@@ -32,7 +32,7 @@ index 9967ba762567631f2bdb1e4f8fe16a13ea927b46..6c945ae8fe8b1517e312c688f829fab4
 +    public FoodProperties copy() {
 +        return new FoodProperties(this.nutrition, this.saturationModifier, this.isMeat, this.canAlwaysEat, this.fastFood, new ArrayList<>(this.effects));
 +    }
-+    // Purpur end
++    // Pempek end
      private final List<Pair<MobEffectInstance, Float>> effects;
  
      FoodProperties(int hunger, float saturationModifier, boolean meat, boolean alwaysEdible, boolean snack, List<Pair<MobEffectInstance, Float>> statusEffects) {
@@ -44,8 +44,8 @@ index 4569cf30b33167a415256a8542820557ad38f89e..9c65eefa855f3622b6c9ae2a698cf332
  import net.minecraft.world.effect.MobEffects;
  
  public class Foods {
-+    public static final java.util.Map<String, FoodProperties> ALL_PROPERTIES = new java.util.HashMap<>(); // Purpur
-+    public static final java.util.Map<String, FoodProperties> DEFAULT_PROPERTIES = new java.util.HashMap<>(); // Purpur
++    public static final java.util.Map<String, FoodProperties> ALL_PROPERTIES = new java.util.HashMap<>(); // Pempek
++    public static final java.util.Map<String, FoodProperties> DEFAULT_PROPERTIES = new java.util.HashMap<>(); // Pempek
      public static final FoodProperties APPLE = new FoodProperties.Builder().nutrition(4).saturationMod(0.3F).build();
      public static final FoodProperties BAKED_POTATO = new FoodProperties.Builder().nutrition(5).saturationMod(0.6F).build();
      public static final FoodProperties BEEF = new FoodProperties.Builder().nutrition(3).saturationMod(0.3F).meat().build();
@@ -57,21 +57,21 @@ index bb2103a488964f25335393fa91e8ae5749eca333..249c887af68f56739c3609bad2405ba2
              ((BlockItem)item).registerBlocks(Item.BY_BLOCK, item);
          }
  
-+        // Purpur start
++        // Pempek start
 +        if (item.getFoodProperties() != null) {
 +            Foods.ALL_PROPERTIES.put(key.location().getPath(), item.getFoodProperties());
 +            Foods.DEFAULT_PROPERTIES.put(key.location().getPath(), item.getFoodProperties().copy());
 +        }
-+        // Purpur end
++        // Pempek end
 +
          return Registry.register(BuiltInRegistries.ITEM, key, item);
      }
  }
-diff --git a/src/main/java/org/purpurmc/purpur/PurpurConfig.java b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
+diff --git a/src/main/java/org/stegripe/pempek/PempekConfig.java b/src/main/java/org/stegripe/pempek/PempekConfig.java
 index 0e28cf20a870f3f3662bd1d8f7a4f2cbf13c48bf..ce3ab604e6ed6669f38abf83d40b500148277b9d 100644
---- a/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-+++ b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-@@ -466,4 +466,75 @@ public class PurpurConfig {
+--- a/src/main/java/org/stegripe/pempek/PempekConfig.java
++++ b/src/main/java/org/stegripe/pempek/PempekConfig.java
+@@ -466,4 +466,75 @@ public class PempekConfig {
          String setPattern = getString("settings.username-valid-characters", defaultPattern);
          usernameValidCharactersPattern = java.util.regex.Pattern.compile(setPattern == null || setPattern.isBlank() ? defaultPattern : setPattern);
      }
@@ -96,7 +96,7 @@ index 0e28cf20a870f3f3662bd1d8f7a4f2cbf13c48bf..ce3ab604e6ed6669f38abf83d40b5001
 +        properties.getKeys(false).forEach(foodKey -> {
 +            FoodProperties food = Foods.ALL_PROPERTIES.get(foodKey);
 +            if (food == null) {
-+                PurpurConfig.log(Level.SEVERE, "Invalid food property: " + foodKey);
++                PempekConfig.log(Level.SEVERE, "Invalid food property: " + foodKey);
 +                return;
 +            }
 +            FoodProperties foodDefaults = Foods.DEFAULT_PROPERTIES.get(foodKey);
@@ -122,7 +122,7 @@ index 0e28cf20a870f3f3662bd1d8f7a4f2cbf13c48bf..ce3ab604e6ed6669f38abf83d40b5001
 +                effects.getKeys(false).forEach(effectKey -> {
 +                    MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(effectKey));
 +                    if (effect == null) {
-+                        PurpurConfig.log(Level.SEVERE, "Invalid food property effect for " + foodKey + ": " + effectKey);
++                        PempekConfig.log(Level.SEVERE, "Invalid food property effect for " + foodKey + ": " + effectKey);
 +                        return;
 +                    }
 +

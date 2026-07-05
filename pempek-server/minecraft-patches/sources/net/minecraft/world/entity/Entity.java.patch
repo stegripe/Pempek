@@ -1,0 +1,171 @@
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -165,6 +_,7 @@
+     SlotProvider,
+     DebugValueSource,
+     TypedInstance<EntityType<?>>, ca.spottedleaf.moonrise.patches.chunk_system.entity.ChunkSystemEntity, ca.spottedleaf.moonrise.patches.entity_tracker.EntityTrackerEntity { // Paper - rewrite chunk system // Paper - optimise entity tracker
++    public static javax.script.ScriptEngine scriptEngine = new javax.script.ScriptEngineManager().getEngineByName("rhino"); // Pempek - Configurable entity base attributes
+     // CraftBukkit start
+     private static final int CURRENT_LEVEL = 2;
+     static boolean isLevelAtLeast(ValueInput input, int level) {
+@@ -297,8 +_,9 @@
+     public double xOld;
+     public double yOld;
+     public double zOld;
++    public float maxUpStep; // Pempek - Add option to set armorstand step height
+     public boolean noPhysics;
+-    protected final RandomSource random = SHARED_RANDOM; // Paper - Share random for entities to make them more random
++    public final RandomSource random; // Paper - Share random for entities to make them more random // Pempek - Add toggle for RNG manipulation
+     public int tickCount;
+     private int remainingFireTicks;
+     private final EntityFluidInteraction fluidInteraction = new EntityFluidInteraction(Set.of(FluidTags.WATER, FluidTags.LAVA));
+@@ -331,8 +_,8 @@
+     public @Nullable PortalProcessor portalProcess;
+     private int portalCooldown;
+     private boolean invulnerable;
+-    protected UUID uuid = Mth.createInsecureUUID(this.random);
+-    protected String stringUUID = this.uuid.toString();
++    protected UUID uuid; // Pempek - Add toggle for RNG manipulation
++    protected String stringUUID; // Pempek - Add toggle for RNG manipulation
+     private boolean hasGlowingTag;
+     private final Set<String> tags = new io.papermc.paper.util.SizeLimitedSet<>(new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet<>(), MAX_ENTITY_TAG_COUNT); // Paper - fully limit tag size - replace set impl
+     private final double[] pistonDeltas = new double[]{0.0, 0.0, 0.0};
+@@ -382,6 +_,7 @@
+     private final int despawnTime; // Paper - entity despawn time limit
+     public int totalEntityAge; // Paper - age-like counter for all entities
+     public final io.papermc.paper.entity.activation.ActivationType activationType = io.papermc.paper.entity.activation.ActivationType.activationTypeFor(this); // Paper - EAR 2/tracking ranges
++    public @Nullable Boolean immuneToFire = null; // Pempek - Fire immune API
+     // Paper start - EAR 2
+     public final boolean defaultActivationState;
+     public long activatedTick = Integer.MIN_VALUE;
+@@ -549,11 +_,23 @@
+     }
+     // Paper end - optimise entity tracker
+ 
++    // Pempek start - Add canSaveToDisk to Entity
++    public boolean canSaveToDisk() {
++        return true;
++    }
++    // Pempek end - Add canSaveToDisk to Entity
++
+     public Entity(final EntityType<?> type, final Level level) {
+         this.type = type;
+         this.level = level;
+         this.id = level.getNextEntityId();
+         this.dimensions = type.getDimensions();
++        this.maxAirTicks = level == null || this.getDefaultMaxAirSupply() != Entity.TOTAL_AIR_SUPPLY ? this.getDefaultMaxAirSupply() : this.level.pempekConfig.drowningAirTicks; // Pempek - Drowning Settings
++        // Pempek start - Add toggle for RNG manipulation
++        this.random = level == null || level.pempekConfig.entitySharedRandom ? SHARED_RANDOM : RandomSource.create();
++        this.uuid = Mth.createInsecureUUID(this.random);
++        this.stringUUID = this.uuid.toString();
++        // Pempek end - Add toggle for RNG manipulation
+         this.position = Vec3.ZERO;
+         this.blockPosition = BlockPos.ZERO;
+         this.chunkPosition = ChunkPos.ZERO;
+@@ -955,6 +_,7 @@
+             && this.level.paperConfig().environment.netherCeilingVoidDamageHeight.test(v -> this.getY() >= v)
+             && (!(this instanceof Player player) || !player.getAbilities().invulnerable))) {
+             // Paper end - Configurable nether ceiling damage
++            if (this.level.pempekConfig.teleportOnNetherCeilingDamage && this.level.getWorld().getEnvironment() == org.bukkit.World.Environment.NETHER && this instanceof ServerPlayer player) player.teleport(org.bukkit.craftbukkit.util.CraftLocation.toBukkit(this.level.getLevelData().getRespawnData().pos(), this.level)); else // Pempek - Add option to teleport to spawn on nether ceiling damage
+             this.onBelowWorld();
+         }
+     }
+@@ -2092,7 +_,7 @@
+     }
+ 
+     public boolean fireImmune() {
+-        return this.getType().fireImmune();
++        return this.immuneToFire != null ? immuneToFire : this.getType().fireImmune(); // Pempek - add fire immune API
+     }
+ 
+     public boolean causeFallDamage(final double fallDistance, final float damageModifier, final DamageSource damageSource) {
+@@ -2682,7 +_,7 @@
+                 output.putBoolean("Bukkit.invisible", this.persistentInvisibility);
+             }
+             // SPIGOT-6907: re-implement LivingEntity#setMaximumAir()
+-            if (this.maxAirTicks != this.getDefaultMaxAirSupply()) {
++            if (this.maxAirTicks != this.getDefaultMaxAirSupply() && this.getDefaultMaxAirSupply() != this.level().pempekConfig.drowningAirTicks) { // Pempek - Drowning Settings
+                 output.putInt("Bukkit.MaxAirSupply", this.getMaxAirSupply());
+             }
+             output.putInt("Spigot.ticksLived", this.totalEntityAge); // Paper
+@@ -2768,6 +_,11 @@
+                 output.putBoolean("Paper.FreezeLock", true);
+             }
+             // Paper end
++            // Pempek start - Fire immune API
++            if (immuneToFire != null) {
++                output.putBoolean("Pempek.FireImmune", immuneToFire);
++            }
++            // Pempek end - Fire immune API
+         } catch (Throwable t) {
+             CrashReport report = CrashReport.forThrowable(t, "Saving entity NBT");
+             CrashReportCategory category = report.addCategory("Entity being saved");
+@@ -2891,6 +_,9 @@
+             }
+             freezeLocked = input.getBooleanOr("Paper.FreezeLock", false);
+             // Paper end
++
++            immuneToFire = input.read("Pempek.FireImmune", com.mojang.serialization.Codec.BOOL).orElse(null); // Pempek - Fire immune API
++
+         } catch (Throwable t) {
+             CrashReport report = CrashReport.forThrowable(t, "Loading entity NBT");
+             CrashReportCategory category = report.addCategory("Entity being loaded");
+@@ -3156,6 +_,7 @@
+             if (this.isAlive() && this instanceof Leashable leashable) {
+                 if (leashable.getLeashHolder() == player) {
+                     if (!this.level().isClientSide()) {
++                        if (hand == InteractionHand.OFF_HAND && (level().pempekConfig.villagerCanBeLeashed || level().pempekConfig.wanderingTraderCanBeLeashed) && this instanceof net.minecraft.world.entity.npc.villager.AbstractVillager) return InteractionResult.CONSUME; // Pempek - Allow leashing villagers
+                         // Paper start - EntityUnleashEvent
+                         if (!org.bukkit.craftbukkit.event.CraftEventFactory.handlePlayerUnleashEntityEvent(
+                             leashable, player, hand, !player.hasInfiniteMaterials(), true
+@@ -3563,15 +_,18 @@
+         return Vec3.directionFromRotation(this.getRotationVector());
+     }
+ 
++    public BlockPos portalPos = BlockPos.ZERO; // Pempek - Fix stuck in portals
+     public void setAsInsidePortal(final Portal portal, final BlockPos pos) {
+         if (this.isOnPortalCooldown()) {
++            if (!(level().pempekConfig.playerFixStuckPortal && this instanceof Player && !pos.equals(this.portalPos))) // Pempek - Fix stuck in portals
+             this.setPortalCooldown();
+-        } else {
++        } else if (this.level.pempekConfig.entitiesCanUsePortals || this instanceof ServerPlayer) { // Pempek - Entities can use portals
+             if (this.portalProcess == null || !this.portalProcess.isSamePortal(portal)) {
+                 this.portalProcess = new PortalProcessor(portal, pos.immutable());
+             } else if (!this.portalProcess.isInsidePortalThisTick()) {
+                 this.portalProcess.updateEntryPosition(pos.immutable());
+                 this.portalProcess.setAsInsidePortalThisTick(true);
++                this.portalPos = BlockPos.ZERO; // Pempek - Fix stuck in portals
+             }
+         }
+     }
+@@ -4311,7 +_,7 @@
+     }
+ 
+     public boolean canUsePortal(final boolean ignorePassenger) {
+-        return (ignorePassenger || !this.isPassenger()) && this.isAlive();
++        return (ignorePassenger || !this.isPassenger()) && this.isAlive() && (this.level.pempekConfig.entitiesCanUsePortals || this instanceof ServerPlayer); // Pempek - Entities can use portals
+     }
+ 
+     public boolean canTeleport(final Level from, final Level to) {
+@@ -4863,6 +_,12 @@
+         return Mth.lerp(partial, this.yRotO, this.yRot);
+     }
+ 
++    // Pempek start - Stop squids floating on top of water
++    public AABB getAxisForFluidCheck() {
++        return this.getBoundingBox().deflate(0.001D);
++    }
++    // Pempek end - Stop squids floating on top of water
++
+     public boolean touchingUnloadedChunk() {
+         AABB box = this.getBoundingBox().inflate(1.0);
+         int x0 = Mth.floor(box.minX);
+@@ -5166,7 +_,7 @@
+     }
+ 
+     public float maxUpStep() {
+-        return 0.0F;
++        return maxUpStep; // Pempek - Add option to set armorstand step height
+     }
+ 
+     public void onExplosionHit(final @Nullable Entity explosionCausedBy) {

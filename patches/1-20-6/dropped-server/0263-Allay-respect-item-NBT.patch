@@ -3,7 +3,7 @@ From: BillyGalbreath <blake.galbreath@gmail.com>
 Date: Tue, 20 Sep 2022 17:56:21 -0500
 Subject: [PATCH] Allay respect item NBT
 
-https://github.com/PurpurMC/Purpur/discussions/1127
+https://github.com/Stegripe/Pempek/discussions/1127
 
 diff --git a/src/main/java/net/minecraft/world/entity/animal/allay/Allay.java b/src/main/java/net/minecraft/world/entity/animal/allay/Allay.java
 index bca7b7192debb3a34a08047010a2438e7b7e2a78..53765198483e137d411e227119e4f912964aefe3 100644
@@ -16,7 +16,7 @@ index bca7b7192debb3a34a08047010a2438e7b7e2a78..53765198483e137d411e227119e4f912
 -        ItemStack itemstack1 = this.getItemInHand(InteractionHand.MAIN_HAND);
 -
 -        return !itemstack1.isEmpty() && this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && this.inventory.canAddItem(stack) && this.allayConsidersItemEqual(itemstack1, stack);
-+        // Purpur start
++        // Pempek start
 +        if (!this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
 +            return false;
 +        }
@@ -30,7 +30,7 @@ index bca7b7192debb3a34a08047010a2438e7b7e2a78..53765198483e137d411e227119e4f912
 +        if (!this.inventory.canAddItem(stack)) {
 +            return false;
 +        }
-+        for (String tag : this.level().purpurConfig.allayRespectNBT) {
++        for (String tag : this.level().pempekConfig.allayRespectNBT) {
 +            if (stack.hasTag() && itemStack.hasTag()) {
 +                Tag tag1 = stack.getTag().get(tag);
 +                Tag tag2 = itemStack.getTag().get(tag);
@@ -40,15 +40,15 @@ index bca7b7192debb3a34a08047010a2438e7b7e2a78..53765198483e137d411e227119e4f912
 +            }
 +        }
 +        return true;
-+        // Purpur end
++        // Pempek end
      }
  
      private boolean allayConsidersItemEqual(ItemStack stack, ItemStack stack2) {
-diff --git a/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java b/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java
+diff --git a/src/main/java/org/stegripe/pempek/PempekWorldConfig.java b/src/main/java/org/stegripe/pempek/PempekWorldConfig.java
 index 5b12c08a1d8e6f62c5653c95071a1d36d735d039..94e29919ddc7f507d54e14c3360f7a3e8bb831a7 100644
---- a/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java
-+++ b/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java
-@@ -1138,10 +1138,13 @@ public class PurpurWorldConfig {
+--- a/src/main/java/org/stegripe/pempek/PempekWorldConfig.java
++++ b/src/main/java/org/stegripe/pempek/PempekWorldConfig.java
+@@ -1138,10 +1138,13 @@ public class PempekWorldConfig {
      public boolean allayRidable = false;
      public boolean allayRidableInWater = true;
      public boolean allayControllable = true;

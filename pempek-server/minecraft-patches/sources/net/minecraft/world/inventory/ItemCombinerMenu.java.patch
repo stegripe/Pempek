@@ -1,0 +1,12 @@
+--- a/net/minecraft/world/inventory/ItemCombinerMenu.java
++++ b/net/minecraft/world/inventory/ItemCombinerMenu.java
+@@ -160,7 +_,9 @@
+                 return ItemStack.EMPTY;
+             }
+ 
++            this.activeQuickItem = clicked; // Pempek - Anvil API
+             slot.onTake(player, stack);
++            this.activeQuickItem = null; // Pempek - Anvil API
+         }
+ 
+         return clicked;

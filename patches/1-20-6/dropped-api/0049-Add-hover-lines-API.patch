@@ -13,7 +13,7 @@ index 98a970a6582dca22e719a31559c7becea4725cb2..1cd2962ceb4fa0a0a3e28a09fa4ccef5
      @NotNull ItemStack enchantWithLevels(@NotNull ItemStack itemStack, @org.jetbrains.annotations.Range(from = 1, to = 30) int levels, boolean allowTreasure, @NotNull java.util.Random random);
      // Paper end - enchantWithLevels API
 +
-+    // Purpur start
++    // Pempek start
 +    /**
 +     * Returns the lines of text shown when hovering over an item
 +     * @param itemStack The ItemStack
@@ -21,7 +21,7 @@ index 98a970a6582dca22e719a31559c7becea4725cb2..1cd2962ceb4fa0a0a3e28a09fa4ccef5
 +     * @return the list of Components
 +     */
 +    @NotNull java.util.List<net.kyori.adventure.text.@NotNull Component> getHoverLines(@NotNull ItemStack itemStack, boolean advanced);
-+    // Purpur end
++    // Pempek end
  }
 diff --git a/src/main/java/org/bukkit/inventory/ItemStack.java b/src/main/java/org/bukkit/inventory/ItemStack.java
 index 6e9b4cbc81878616b1c48add5db534286d267b05..e497575b2f44bb8b3bb6fdda3ae2f5247cbb4679 100644
@@ -40,5 +40,5 @@ index 6e9b4cbc81878616b1c48add5db534286d267b05..e497575b2f44bb8b3bb6fdda3ae2f524
 +    public @NotNull List<net.kyori.adventure.text.@NotNull Component> getHoverLines(boolean advanced) {
 +        return Bukkit.getItemFactory().getHoverLines(this, advanced);
 +    }
-     // Purpur end
+     // Pempek end
  }

@@ -1,12 +1,12 @@
-name: Purpur-Test-Plugin
+name: Pempek-Test-Plugin
 version: ${version}
-main: org.purpurmc.testplugin.TestPlugin
-description: Purpur Test Plugin
-author: PurpurMC
+main: org.stegripe.testplugin.TestPlugin
+description: Pempek Test Plugin
+author: Stegripe
 api-version: ${apiversion}
 load: STARTUP
-#bootstrapper: org.purpurmc.testplugin.TestPluginBootstrap
-#loader: org.purpurmc.testplugin.TestPluginLoader
+#bootstrapper: org.stegripe.testplugin.TestPluginBootstrap
+#loader: org.stegripe.testplugin.TestPluginLoader
 defaultPerm: FALSE
 permissions:
 dependencies:

@@ -13,7 +13,7 @@ index 44b79a7c2f8b95a484d1999fa2167ce588f7985b..68632372c8704058f35f12e0ae6cdd98
                      // CraftBukkit start
                      // Paper start - Add drops to shear events
 -                    org.bukkit.event.block.BlockShearEntityEvent event = CraftEventFactory.callBlockShearEntityEvent(entityliving, bukkitBlock, craftItem, ishearable.generateDefaultDrops());
-+                    org.bukkit.event.block.BlockShearEntityEvent event = CraftEventFactory.callBlockShearEntityEvent(entityliving, bukkitBlock, craftItem, ishearable.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, CraftItemStack.asNMSCopy(craftItem)))); // Purpur
++                    org.bukkit.event.block.BlockShearEntityEvent event = CraftEventFactory.callBlockShearEntityEvent(entityliving, bukkitBlock, craftItem, ishearable.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, CraftItemStack.asNMSCopy(craftItem)))); // Pempek
                      if (event.isCancelled()) {
                          // Paper end - Add drops to shear events
                          continue;
@@ -26,7 +26,7 @@ index 2ee48ac3b665db2b02bcb1a30ec972d43a3725b0..59e8f5431ce5026209e1428b5fa5b548
      boolean readyForShearing();
      // Paper start - custom shear drops; ensure all implementing entities override this
 -    default java.util.List<net.minecraft.world.item.ItemStack> generateDefaultDrops() {
-+    default java.util.List<net.minecraft.world.item.ItemStack> generateDefaultDrops(int looting) { // Purpur
++    default java.util.List<net.minecraft.world.item.ItemStack> generateDefaultDrops(int looting) { // Pempek
          return java.util.Collections.emptyList();
      }
      // Paper end - custom shear drops
@@ -39,7 +39,7 @@ index 06fac8dae42451f912c2db14d792461cee3dba83..e5a84dd5f1a375dd44b9d14dc7f44339
              // CraftBukkit start
              // Paper start - custom shear drops
 -            java.util.List<ItemStack> drops = this.generateDefaultDrops();
-+            java.util.List<ItemStack> drops = this.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Purpur
++            java.util.List<ItemStack> drops = this.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Pempek
              org.bukkit.event.player.PlayerShearEntityEvent event = CraftEventFactory.handlePlayerShearEntityEvent(player, this, itemstack, hand, drops);
              if (event != null) {
                  if (event.isCancelled()) {
@@ -48,15 +48,15 @@ index 06fac8dae42451f912c2db14d792461cee3dba83..e5a84dd5f1a375dd44b9d14dc7f44339
      public void shear(SoundSource shearedSoundCategory) {
          // Paper start - custom shear drops
 -        this.shear(shearedSoundCategory, this.generateDefaultDrops());
-+        this.shear(shearedSoundCategory, this.generateDefaultDrops(0)); // Purpur
++        this.shear(shearedSoundCategory, this.generateDefaultDrops(0)); // Pempek
      }
  
      @Override
 -    public java.util.List<ItemStack> generateDefaultDrops() {
-+    public java.util.List<ItemStack> generateDefaultDrops(int looting) { // Purpur
++    public java.util.List<ItemStack> generateDefaultDrops(int looting) { // Pempek
          java.util.List<ItemStack> dropEntities = new java.util.ArrayList<>(5);
 -        for (int i = 0; i < 5; ++i) {
-+        for (int i = 0; i < 5 + (org.purpurmc.purpur.PurpurConfig.allowShearsLooting ? looting : 0); ++i) { // Purpur
++        for (int i = 0; i < 5 + (org.stegripe.pempek.PempekConfig.allowShearsLooting ? looting : 0); ++i) { // Pempek
              dropEntities.add(new ItemStack(this.getVariant().getBlockState().getBlock()));
          }
          return dropEntities;
@@ -69,7 +69,7 @@ index ca63c98bc45584812c0fb2af84a63aa08daa9a9e..17b49186293578c06144a476473324a9
                  // CraftBukkit start
                  // Paper start - custom shear drops
 -                java.util.List<ItemStack> drops = this.generateDefaultDrops();
-+                java.util.List<ItemStack> drops = this.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Purpur
++                java.util.List<ItemStack> drops = this.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Pempek
                  org.bukkit.event.player.PlayerShearEntityEvent event = CraftEventFactory.handlePlayerShearEntityEvent(player, this, itemstack, hand, drops);
                  if (event != null) {
                      if (event.isCancelled()) {
@@ -78,14 +78,14 @@ index ca63c98bc45584812c0fb2af84a63aa08daa9a9e..17b49186293578c06144a476473324a9
      public void shear(SoundSource shearedSoundCategory) {
          // Paper start - custom shear drops
 -        this.shear(shearedSoundCategory, this.generateDefaultDrops());
-+        this.shear(shearedSoundCategory, this.generateDefaultDrops(0)); // Purpur
++        this.shear(shearedSoundCategory, this.generateDefaultDrops(0)); // Pempek
      }
  
      @Override
 -    public java.util.List<ItemStack> generateDefaultDrops() {
-+    public java.util.List<ItemStack> generateDefaultDrops(int looting) { // Purpur
++    public java.util.List<ItemStack> generateDefaultDrops(int looting) { // Pempek
          int count = 1 + this.random.nextInt(3);
-+        if (org.purpurmc.purpur.PurpurConfig.allowShearsLooting) count += looting; // Purpur
++        if (org.stegripe.pempek.PempekConfig.allowShearsLooting) count += looting; // Pempek
          java.util.List<ItemStack> dropEntities = new java.util.ArrayList<>(count);
          for (int j = 0; j < count; ++j) {
              dropEntities.add(new ItemStack(Sheep.ITEM_BY_DYE.get(this.getColor())));
@@ -98,7 +98,7 @@ index b3bb0d55da0278d4981830f7073bb326bc836215..7bd2d2b9bb1275fa8e4bdc6d498a59e4
              // CraftBukkit start
              // Paper start - custom shear drops
 -            java.util.List<ItemStack> drops = this.generateDefaultDrops();
-+            java.util.List<ItemStack> drops = this.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Purpur
++            java.util.List<ItemStack> drops = this.generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Pempek
              org.bukkit.event.player.PlayerShearEntityEvent event = CraftEventFactory.handlePlayerShearEntityEvent(player, this, itemstack, hand, drops);
              if (event != null) {
                  if (event.isCancelled()) {
@@ -107,21 +107,21 @@ index b3bb0d55da0278d4981830f7073bb326bc836215..7bd2d2b9bb1275fa8e4bdc6d498a59e4
      public void shear(SoundSource shearedSoundCategory) {
          // Paper start - custom shear drops
 -        this.shear(shearedSoundCategory, this.generateDefaultDrops());
-+        this.shear(shearedSoundCategory, this.generateDefaultDrops(0)); // Purpur
++        this.shear(shearedSoundCategory, this.generateDefaultDrops(0)); // Pempek
      }
  
      @Override
 -    public java.util.List<ItemStack> generateDefaultDrops() {
-+    // Purpur start
++    // Pempek start
 +    public java.util.List<ItemStack> generateDefaultDrops(int looting) {
-+        if (org.purpurmc.purpur.PurpurConfig.allowShearsLooting) {
++        if (org.stegripe.pempek.PempekConfig.allowShearsLooting) {
 +            java.util.ArrayList<ItemStack> list = new java.util.ArrayList<>();
 +            for (int i = 0; i < 1 + looting; i++) {
 +                list.add(new ItemStack(Items.CARVED_PUMPKIN));
 +            }
 +            return java.util.Collections.unmodifiableList(list);
 +        }
-+    // Purpur end
++    // Pempek end
          return java.util.Collections.singletonList(new ItemStack(Items.CARVED_PUMPKIN));
      }
  
@@ -134,7 +134,7 @@ index 71efea7a6bfb5662890dae5faae27a3c80afad2b..f3aae2c50d05a05ad4aef36d432b87b4
              // CraftBukkit start
              // Paper start - expose drops in event
 -            java.util.List<net.minecraft.world.item.ItemStack> drops = generateDefaultDrops();
-+            java.util.List<net.minecraft.world.item.ItemStack> drops = generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Purpur
++            java.util.List<net.minecraft.world.item.ItemStack> drops = generateDefaultDrops(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(net.minecraft.world.item.enchantment.Enchantments.LOOTING, itemstack)); // Pempek
              final org.bukkit.event.player.PlayerShearEntityEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.handlePlayerShearEntityEvent(player, this, itemstack, hand, drops);
              if (event != null) {
                  if (event.isCancelled()) {
@@ -143,7 +143,7 @@ index 71efea7a6bfb5662890dae5faae27a3c80afad2b..f3aae2c50d05a05ad4aef36d432b87b4
      public void shear(SoundSource shearedSoundCategory) {
      // Paper start - shear drop API
 -        this.shear(shearedSoundCategory, generateDefaultDrops());
-+        this.shear(shearedSoundCategory, generateDefaultDrops(0)); // Purpur
++        this.shear(shearedSoundCategory, generateDefaultDrops(0)); // Pempek
      }
  
      @Override
@@ -152,7 +152,7 @@ index 71efea7a6bfb5662890dae5faae27a3c80afad2b..f3aae2c50d05a05ad4aef36d432b87b4
      private void spawnShearedMushrooms() {
      // Paper start - shear drops API
 -        this.spawnDrops(generateDefaultDrops()); // Only here for people calling spawnSheardMushrooms. Not used otherwise.
-+        this.spawnDrops(generateDefaultDrops(0)); // Only here for people calling spawnSheardMushrooms. Not used otherwise. // Purpur
++        this.spawnDrops(generateDefaultDrops(0)); // Only here for people calling spawnSheardMushrooms. Not used otherwise. // Pempek
      }
      private void spawnDrops(java.util.List<net.minecraft.world.item.ItemStack> drops) {
          drops.forEach(stack -> {
@@ -161,7 +161,7 @@ index 71efea7a6bfb5662890dae5faae27a3c80afad2b..f3aae2c50d05a05ad4aef36d432b87b4
          });
      }
 -    private void generateShearedMushrooms(java.util.function.Consumer<ItemStack> stackConsumer) {
-+    private void generateShearedMushrooms(java.util.function.Consumer<ItemStack> stackConsumer, int looting) { // Purpur
++    private void generateShearedMushrooms(java.util.function.Consumer<ItemStack> stackConsumer, int looting) { // Pempek
      // Paper end - shear drops API
          Level world = this.level();
  
@@ -169,15 +169,15 @@ index 71efea7a6bfb5662890dae5faae27a3c80afad2b..f3aae2c50d05a05ad4aef36d432b87b4
              LootTable loottable = worldserver.getServer().reloadableRegistries().getLootTable(BuiltInLootTables.BOGGED_SHEAR);
              LootParams lootparams = (new LootParams.Builder(worldserver)).withParameter(LootContextParams.ORIGIN, this.position()).withParameter(LootContextParams.THIS_ENTITY, this).create(LootContextParamSets.SHEARING);
 -            ObjectListIterator objectlistiterator = loottable.getRandomItems(lootparams).iterator();
-+            // Purpur start
++            // Pempek start
 +            it.unimi.dsi.fastutil.objects.ObjectArrayList<ItemStack> randomItemsList = loottable.getRandomItems(lootparams);
-+            if (org.purpurmc.purpur.PurpurConfig.allowShearsLooting && looting > 0) {
++            if (org.stegripe.pempek.PempekConfig.allowShearsLooting && looting > 0) {
 +                for (int i = 0; i < looting; i++) {
 +                    randomItemsList.addAll(loottable.getRandomItems(lootparams));
 +                }
 +            }
 +            ObjectListIterator objectlistiterator = randomItemsList.iterator();
-+            // Purpur end
++            // Pempek end
  
              while (objectlistiterator.hasNext()) {
                  ItemStack itemstack = (ItemStack) objectlistiterator.next();
@@ -186,18 +186,18 @@ index 71efea7a6bfb5662890dae5faae27a3c80afad2b..f3aae2c50d05a05ad4aef36d432b87b4
      // Paper start - shear drops API
      @Override
 -    public java.util.List<ItemStack> generateDefaultDrops() {
-+    public java.util.List<ItemStack> generateDefaultDrops(int looting) { // Purpur
++    public java.util.List<ItemStack> generateDefaultDrops(int looting) { // Pempek
          final java.util.List<ItemStack> drops = new java.util.ArrayList<>();
 -        this.generateShearedMushrooms(drops::add);
-+        this.generateShearedMushrooms(drops::add, looting); // Purpur
++        this.generateShearedMushrooms(drops::add, looting); // Pempek
          return drops;
      }
      // Paper end - shear drops API
-diff --git a/src/main/java/org/purpurmc/purpur/PurpurConfig.java b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
+diff --git a/src/main/java/org/stegripe/pempek/PempekConfig.java b/src/main/java/org/stegripe/pempek/PempekConfig.java
 index 7ad309e81ec61a6f2553e9ffeb9a986f4d569b37..3d5c89238ee3fbd3c9b33107995ae47733539960 100644
---- a/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-+++ b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-@@ -393,6 +393,7 @@ public class PurpurConfig {
+--- a/src/main/java/org/stegripe/pempek/PempekConfig.java
++++ b/src/main/java/org/stegripe/pempek/PempekConfig.java
+@@ -393,6 +393,7 @@ public class PempekConfig {
          }
      }
  
@@ -205,7 +205,7 @@ index 7ad309e81ec61a6f2553e9ffeb9a986f4d569b37..3d5c89238ee3fbd3c9b33107995ae477
      public static boolean allowInapplicableEnchants = false;
      public static boolean allowIncompatibleEnchants = false;
      public static boolean allowHigherEnchantsLevels = false;
-@@ -416,6 +417,7 @@ public class PurpurConfig {
+@@ -416,6 +417,7 @@ public class PempekConfig {
              }
              set("settings.enchantment.anvil.allow-unsafe-enchants", null);
          }

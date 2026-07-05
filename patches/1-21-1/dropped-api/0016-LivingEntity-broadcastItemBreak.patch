@@ -13,12 +13,12 @@ index 5c29956c6db53440322330ff723c7087193641f1..e1079c5c4be99e75a646c090189678dd
      void setBodyYaw(float bodyYaw);
      // Paper end - body yaw API
 +
-+    // Purpur start
++    // Pempek start
 +    /**
 +     * Play item break animation for the item in specified equipment slot
 +     *
 +     * @param slot Equipment slot to play break animation for
 +     */
 +    void broadcastItemBreak(@NotNull org.bukkit.inventory.EquipmentSlot slot);
-+    // Purpur end
++    // Pempek end
  }

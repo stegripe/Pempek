@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/level/block/WeepingVinesBlock.java
++++ b/net/minecraft/world/level/block/WeepingVinesBlock.java
+@@ -34,4 +_,11 @@
+     protected boolean canGrowInto(final BlockState state) {
+         return NetherVines.isValidGrowthState(state);
+     }
++
++    // Pempek start - weeping vines configurable max growth age
++    @Override
++    public int getMaxGrowthAge() {
++        return org.stegripe.pempek.PempekConfig.weepingVinesMaxGrowthAge;
++    }
++    // Pempek end - weeping vines configurable max growth age
+ }

@@ -15,24 +15,24 @@ if (!file(".git").exists()) {
     val errorText = """
         
         =====================[ ERROR ]=====================
-         The Purpur project directory is not a properly cloned Git repository.
+         The Pempek project directory is not a properly cloned Git repository.
          
-         In order to build Purpur from source you must clone
-         the Purpur repository using Git, not download a code
+         In order to build Pempek from source you must clone
+         the Pempek repository using Git, not download a code
          zip from GitHub.
          
-         Built Purpur jars are available for download at
-         https://purpurmc.org/downloads
+         Built Pempek jars are available for download at
+         https://pempek.stegripe.org/downloads
          
-         See https://github.com/PurpurMC/Purpur/blob/HEAD/CONTRIBUTING.md
-         for further information on building and modifying Purpur.
+         See https://github.com/Stegripe/Pempek/blob/HEAD/CONTRIBUTING.md
+         for further information on building and modifying Pempek.
         ===================================================
     """.trimIndent()
     error(errorText)
 }
 
-rootProject.name = "purpur"
-for (name in listOf("purpur-api", "purpur-server")) {
+rootProject.name = "pempek"
+for (name in listOf("pempek-api", "pempek-server")) {
     val projName = name.lowercase(Locale.ENGLISH)
     include(projName)
     findProject(":$projName")!!.projectDir = file(name)
@@ -58,12 +58,12 @@ fun optionalInclude(name: String, op: (ProjectDescriptor.() -> Unit)? = null) {
 
 gradle.lifecycle.beforeProject {
     val mcVersion = providers.gradleProperty("mcVersion").get().trim()
-    val purpurChannel = providers.gradleProperty("channel").get().trim()
-    val purpurBuildNumber = providers.environmentVariable("BUILD_NUMBER").orNull?.trim()?.toInt()
-    val versionString = if (purpurBuildNumber == null) {
+    val pempekChannel = providers.gradleProperty("channel").get().trim()
+    val pempekBuildNumber = providers.environmentVariable("BUILD_NUMBER").orNull?.trim()?.toInt()
+    val versionString = if (pempekBuildNumber == null) {
         "$mcVersion.local-SNAPSHOT"
     } else {
-        "$mcVersion.build.$purpurBuildNumber-${purpurChannel.lowercase()}"
+        "$mcVersion.build.$pempekBuildNumber-${pempekChannel.lowercase()}"
     }
     version = versionString
 }

@@ -1,0 +1,128 @@
+--- a/net/minecraft/world/entity/npc/villager/Villager.java
++++ b/net/minecraft/world/entity/npc/villager/Villager.java
+@@ -181,6 +_,8 @@
+         MemoryModuleType.MEETING_POINT,
+         (villager, poiType) -> poiType.is(PoiTypes.MEETING)
+     );
++    private boolean isLobotomized = false; public boolean isLobotomized() { return this.isLobotomized; } // Pempek - Lobotomize stuck villagers
++    private int notLobotomizedCount = 0; // Pempek - Lobotomize stuck villagers
+ 
+     public Villager(final EntityType<? extends Villager> entityType, final Level level) {
+         super(entityType, level);
+@@ -190,6 +_,57 @@
+         this.setCanPickUpLoot(true);
+     }
+ 
++    // Pempek start - Allow leashing villagers
++    @Override
++    public boolean canBeLeashed() {
++        return level().pempekConfig.villagerCanBeLeashed;
++    }
++    // Pempek end - Allow leashing villagers
++
++    // Pempek start - Lobotomize stuck villagers
++    private boolean checkLobotomized() {
++        int interval = this.level().pempekConfig.villagerLobotomizeCheckInterval;
++        boolean shouldCheckForTradeLocked = this.level().pempekConfig.villagerLobotomizeWaitUntilTradeLocked;
++        if (this.notLobotomizedCount > 3) {
++            // check half as often if not lobotomized for the last 3+ consecutive checks
++            interval *= 2;
++        }
++        if (this.level().getGameTime() % interval == 0) {
++            // offset Y for short blocks like dirt_path/farmland
++            this.isLobotomized = !(shouldCheckForTradeLocked && this.getVillagerXp() == 0) && !canTravelFrom(net.minecraft.core.BlockPos.containing(this.position().x, this.getBoundingBox().minY + 0.0625D, this.position().z));
++
++            if (this.isLobotomized) {
++                this.notLobotomizedCount = 0;
++            } else {
++                this.notLobotomizedCount++;
++            }
++        }
++        return this.isLobotomized;
++    }
++
++    private boolean canTravelFrom(net.minecraft.core.BlockPos pos) {
++        return canTravelTo(pos.east()) || canTravelTo(pos.west()) || canTravelTo(pos.north()) || canTravelTo(pos.south());
++    }
++
++    private boolean canTravelTo(net.minecraft.core.BlockPos pos) {
++        net.minecraft.world.level.block.state.BlockState state = this.level().getBlockStateIfLoaded(pos);
++        if (state == null) {
++            // chunk not loaded
++            return false;
++        }
++        net.minecraft.world.level.block.Block bottom = state.getBlock();
++        if (bottom instanceof net.minecraft.world.level.block.FenceBlock ||
++            bottom instanceof net.minecraft.world.level.block.FenceGateBlock ||
++            bottom instanceof net.minecraft.world.level.block.WallBlock) {
++            // bottom block is too tall to get over
++            return false;
++        }
++        net.minecraft.world.level.block.Block top = level().getBlockState(pos.above()).getBlock();
++        // only if both blocks have no collision
++        return !bottom.hasCollision && !top.hasCollision;
++    }
++    // Pempek end - Lobotomize stuck villagers
++
+     @Override
+     public Brain<Villager> getBrain() {
+         return (Brain<Villager>)super.getBrain();
+@@ -259,11 +_,22 @@
+         // Paper start - EAR 2
+         this.customServerAiStep(level, false);
+     }
+-    protected void customServerAiStep(ServerLevel level, final boolean inactive) {
++    protected void customServerAiStep(ServerLevel level, boolean inactive) { // Pempek - Lobotomize stuck villagers
+         // Paper end - EAR 2
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("villagerBrain");
+-        if (!inactive) this.getBrain().tick(level, this); // Paper - EAR 2
++        // Pempek start - Lobotomize stuck villagers
++        if (this.level().pempekConfig.villagerLobotomizeEnabled) {
++            // treat as inactive if lobotomized
++            inactive = inactive || checkLobotomized();
++        } else {
++            this.isLobotomized = false;
++        }
++        if (!inactive) {
++            this.getBrain().tick(level, this); // Paper - EAR 2
++        }
++        else if (this.isLobotomized && shouldRestock(level)) restock();
++        // Pempek end - Lobotomize stuck villagers
+         profiler.pop();
+         if (this.assignProfessionWhenSpawned) {
+             this.assignProfessionWhenSpawned = false;
+@@ -338,6 +_,7 @@
+                 return InteractionResult.CONSUME;
+             }
+ 
++            if (this.level().pempekConfig.villagerAllowTrading) // Pempek - Add config for villager trading
+             this.startTrading(player);
+         }
+ 
+@@ -478,7 +_,7 @@
+ 
+     public void updateDemand() {
+         for (MerchantOffer offer : this.getOffers()) {
+-            offer.updateDemand();
++            offer.updateDemand(this.level().pempekConfig.villagerMinimumDemand); // Pempek - Configurable minimum demand for trades
+         }
+     }
+ 
+@@ -688,7 +_,7 @@
+ 
+     @Override
+     public boolean canBreed() {
+-        return this.foodLevel + this.countFoodPointsInInventory() >= 12 && !this.isSleeping() && this.getAge() == 0;
++        return this.level().pempekConfig.villagerCanBreed && this.foodLevel + this.countFoodPointsInInventory() >= 12 && !this.isSleeping() && this.getAge() == 0; // Pempek - Configurable villager breeding
+     }
+ 
+     private boolean hungry() {
+@@ -893,6 +_,7 @@
+     }
+ 
+     public void spawnGolemIfNeeded(final ServerLevel level, final long timestamp, final int villagersNeededToAgree) {
++        if (level.pempekConfig.villagerSpawnIronGolemRadius > 0 && level.getEntitiesOfClass(net.minecraft.world.entity.animal.golem.IronGolem.class, getBoundingBox().inflate(level.pempekConfig.villagerSpawnIronGolemRadius)).size() > level.pempekConfig.villagerSpawnIronGolemLimit) return; // Pempek - Implement configurable search radius for villagers to spawn iron golems
+         if (this.wantsToSpawnGolem(timestamp)) {
+             AABB villagerSearchBox = this.getBoundingBox().inflate(10.0, 10.0, 10.0);
+             List<Villager> nearbyVillagers = level.getEntitiesOfClass(Villager.class, villagerSearchBox);

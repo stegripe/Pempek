@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/monster/illager/Vindicator.java
++++ b/net/minecraft/world/entity/monster/illager/Vindicator.java
+@@ -131,6 +_,11 @@
+         RandomSource random = level.getRandom();
+         this.populateDefaultEquipmentSlots(random, difficulty);
+         this.populateDefaultEquipmentEnchantments(level, random, difficulty);
++        // Pempek start - Special mobs naturally spawn
++        if (level().pempekConfig.vindicatorJohnnySpawnChance > 0D && random.nextDouble() <= level().pempekConfig.vindicatorJohnnySpawnChance) {
++            setCustomName(Component.translatable("Johnny"));
++        }
++        // Pempek end - Special mobs naturally spawn
+         return spawnGroupData;
+     }
+ 

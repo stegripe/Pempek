@@ -12,7 +12,7 @@ index b863249ff7e13cf4939c8961601f0564c62fd661..bdcfd80f937c34956911373905d66424
      private static final int MAX_PUBLIC_KEY_LENGTH = 512;
      private static final Gson GSON = new Gson();
  
-+    public static boolean hasItemSerializeEvent = false; // Purpur
++    public static boolean hasItemSerializeEvent = false; // Pempek
 +
      public FriendlyByteBuf(ByteBuf parent) {
          this.source = parent;
@@ -21,17 +21,17 @@ index b863249ff7e13cf4939c8961601f0564c62fd661..bdcfd80f937c34956911373905d66424
              this.writeBoolean(false);
          } else {
              this.writeBoolean(true);
-+            // Purpur start
++            // Pempek start
 +            if (hasItemSerializeEvent) {
-+                var event = new org.purpurmc.purpur.event.packet.NetworkItemSerializeEvent(stack.asBukkitCopy());
++                var event = new org.stegripe.pempek.event.packet.NetworkItemSerializeEvent(stack.asBukkitCopy());
 +                event.callEvent();
 +                ItemStack newStack = ItemStack.fromBukkitCopy(event.getItemStack());
-+                if (org.purpurmc.purpur.PurpurConfig.fixNetworkSerializedItemsInCreative && !ItemStack.matches(stack, newStack)) {
-+                    stack.save(newStack.getOrCreateTagElement("Purpur.OriginalItem"));
++                if (org.stegripe.pempek.PempekConfig.fixNetworkSerializedItemsInCreative && !ItemStack.matches(stack, newStack)) {
++                    stack.save(newStack.getOrCreateTagElement("Pempek.OriginalItem"));
 +                }
 +                stack = newStack;
 +            }
-+            // Purpur end
++            // Pempek end
              Item item = stack.getItem();
  
              this.writeId(BuiltInRegistries.ITEM, item);
@@ -40,10 +40,10 @@ index 4611116f3328c0f8d5b37c8765feca36b2448ffe..60b5e0643d933393b5473681ac9261db
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1731,6 +1731,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-         //MinecraftTimings.timeUpdateTimer.stopTiming(); // Spigot // Paper // Purpur
+         //MinecraftTimings.timeUpdateTimer.stopTiming(); // Spigot // Paper // Pempek
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
-+        net.minecraft.network.FriendlyByteBuf.hasItemSerializeEvent = org.purpurmc.purpur.event.packet.NetworkItemSerializeEvent.getHandlerList().getRegisteredListeners().length > 0; // Purpur
++        net.minecraft.network.FriendlyByteBuf.hasItemSerializeEvent = org.stegripe.pempek.event.packet.NetworkItemSerializeEvent.getHandlerList().getRegisteredListeners().length > 0; // Pempek
          Iterator iterator = this.getAllLevels().iterator(); // Paper - Throw exception on world create while being ticked; move down
          while (iterator.hasNext()) {
              ServerLevel worldserver = (ServerLevel) iterator.next();
@@ -55,20 +55,20 @@ index 872be72e24017fdcb3060f6e4e9a92c342d59fc1..f7ac60e1aa188ec25a4c5d326cdd4a10
                      }
                  }
              }
-+            // Purpur start
-+            if (org.purpurmc.purpur.PurpurConfig.fixNetworkSerializedItemsInCreative) {
-+                var tag = itemstack.getTagElement("Purpur.OriginalItem");
++            // Pempek start
++            if (org.stegripe.pempek.PempekConfig.fixNetworkSerializedItemsInCreative) {
++                var tag = itemstack.getTagElement("Pempek.OriginalItem");
 +                if (tag != null) itemstack = ItemStack.of(tag);
 +            }
-+            // Purpur end
++            // Pempek end
  
              boolean flag1 = packet.getSlotNum() >= 1 && packet.getSlotNum() <= 45;
              boolean flag2 = itemstack.isEmpty() || itemstack.getDamageValue() >= 0 && itemstack.getCount() <= 64 && !itemstack.isEmpty();
-diff --git a/src/main/java/org/purpurmc/purpur/PurpurConfig.java b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
+diff --git a/src/main/java/org/stegripe/pempek/PempekConfig.java b/src/main/java/org/stegripe/pempek/PempekConfig.java
 index 5313ba91ffc625b27d5bb99395f0e719829f6bda..5329ad6493950a561bd46045e35a9bd70ac4405f 100644
---- a/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-+++ b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
-@@ -568,4 +568,9 @@ public class PurpurConfig {
+--- a/src/main/java/org/stegripe/pempek/PempekConfig.java
++++ b/src/main/java/org/stegripe/pempek/PempekConfig.java
+@@ -568,4 +568,9 @@ public class PempekConfig {
              }
          });
      }

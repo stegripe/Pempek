@@ -1,0 +1,13 @@
+--- a/src/main/java/org/bukkit/craftbukkit/map/CraftMapRenderer.java
++++ b/src/main/java/org/bukkit/craftbukkit/map/CraftMapRenderer.java
+@@ -46,4 +_,10 @@
+         }
+     }
+ 
++    // Pempek start - Explorer Map API
++    @Override
++    public boolean isExplorerMap() {
++        return this.worldMap.isExplorerMap;
++    }
++    // Pempek end - Explorer Map API
+ }

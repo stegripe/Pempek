@@ -13,7 +13,7 @@ index 6e2a6ce5cf456bd9f6c8c18a58f08e2285dc77ed..b27d16e74c3f99aa693b38590c1fb62d
      }
      // Paper end - enchantWithLevels API
 +
-+    // Purpur start
++    // Pempek start
 +    @Override
 +    public @org.jetbrains.annotations.NotNull java.util.List<net.kyori.adventure.text.@org.jetbrains.annotations.NotNull Component> getHoverLines(@org.jetbrains.annotations.NotNull ItemStack itemStack, boolean advanced) {
 +        return io.papermc.paper.adventure.PaperAdventure.asAdventure(
@@ -24,5 +24,5 @@ index 6e2a6ce5cf456bd9f6c8c18a58f08e2285dc77ed..b27d16e74c3f99aa693b38590c1fb62d
 +            )
 +        );
 +    }
-+    // Purpur end
++    // Pempek end
  }
